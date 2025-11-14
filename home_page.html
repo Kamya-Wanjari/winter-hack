@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hostel Issue Reporting Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff8e1;
+      color: #333;
+    }
+
+    /* Header */
+    .header {
+      background-color: #ffd369;
+      color: #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.6em;
+      font-weight: bold;
+    }
+
+    .logo i {
+      background-color: #333;
+      color: #ffd369;
+      padding: 8px;
+      border-radius: 6px;
+      margin-right: 10px;
+      font-size: 1em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #000;
+    }
+
+    .login-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .login-buttons a {
+      background-color: #333;
+      color: #ffd369;
+      padding: 8px 14px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.3s;
+    }
+
+    .login-buttons a:hover {
+      background-color: #555;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: url('https://picsum.photos/1600/600?hostel') center/cover no-repeat;
+      height: 50vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-overlay {
+      background: rgba(0,0,0,0.6);
+      padding: 30px;
+      border-radius: 10px;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+    }
+
+    /* Complaint Categories */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 40px 30px;
+    }
+
+    .category {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .category:hover {
+      transform: translateY(-5px);
+    }
+
+    .category i {
+      font-size: 2rem;
+      color: #ffd369;
+      margin-bottom: 10px;
+    }
+
+    /* Status Section */
+    .status {
+      background: #fff3cd;
+      padding: 30px;
+      margin: 40px;
+      border-radius: 10px;
+    }
+
+    .status h2 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .status ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .status li {
+      background: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Footer */
+    footer {
+      background-color: #ffd369;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <i class="fas fa-tools"></i> Hostel Issue Reporting Portal
+    </div>
+
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Report Issue</a>
+      <a href="#">Status</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </div>
+
+    <div class="login-buttons">
+      <a href="st_login.html"><i class="fas fa-user-graduate"></i> Student Login</a>
+      <a href="staff_login.html"><i class="fas fa-users-cog"></i> Staff Login</a>
+      <a href="wd_login.html"><i class="fas fa-user-shield"></i> Warden Login</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-overlay">
+      <h1>Report Hostel Issues Easily</h1>
+      <p>Students, staff, and wardens — work together to resolve complaints quickly.</p>
+    </div>
+  </section>
+
+  <!-- Complaint Categories -->
+  <section class="categories">
+    <div class="category">
+      <i class="fas fa-tint"></i>
+      <h2>Water Leakage</h2>
+      <p>Report leaks and plumbing issues.</p>
+    </div>
+    <div class="category">
+      <i class="fas fa-bolt"></i>
+      <h2>Power Cuts</h2>
+      <p>Submit complaints about electricity outages.</p>
+    </div>
+    <div class="category">
+      <i class="fas fa-broom"></i>
+      <h2>Cleanliness</h2>
+      <p>Raise issues about hygiene and sanitation.</p>
+    </div>
+    <div class="category">
+      <i class="fas fa-cogs"></i>
+      <h2>Other Issues</h2>
+      <p>Report maintenance or miscellaneous problems.</p>
+    </div>
+  </section>
+
+  <!-- Status Updates -->
+  <div class="status">
+    <h2>Recent Complaints</h2>
+    <ul>
+      <li>Water leakage in Room 102 – Status: Reported by Student → Staff Review Pending</li>
+      <li>Power cut in Block B – Status: Staff Assigned → Warden Approval</li>
+      <li>Mess cleanliness issue – Status: Staff Verified → In Progress</li>
+    </ul>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 Hostel Issue Reporting Portal | Designed for Students, Staff & Wardens
+  </footer>
+
+</body>
+</html>
