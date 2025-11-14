@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Complaint</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F8FAFC;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 40%;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #1D4ED8;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #0F172A;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+        }
+
+        textarea {
+            height: 120px;
+            resize: none;
+        }
+
+        .btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #1D4ED8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Submit a Complaint</h2>
+
+        <form action="/submit_complaint" method="POST" enctype="multipart/form-data">
+
+            <!-- Hostel Selection -->
+            <label for="hostel">Select Your Hostel</label>
+            <select id="hostel" name="hostel" required>
+                <option value="">Choose your hostel</option>
+                <option value="terekhol-girls">Terekhol (Girls Hostel)</option>
+                <option value="talpona-boys">Talpona (Boys Hostel)</option>
+            </select>
+
+            <!-- Category -->
+            <label for="category">Issue Category</label>
+            <select id="category" name="category" required>
+                <option value="">Select an issue</option>
+                <option value="water">Water Leakage</option>
+                <option value="electricity">Power Cut / Electricity</option>
+                <option value="cleanliness">Cleanliness Issue</option>
+                <option value="wifi">WiFi / Internet Issue</option>
+                <option value="other">Other</option>
+            </select>
+
+            <!-- Room -->
+            <label for="room">Room Number</label>
+            <input type="text" id="room" name="room" placeholder="Enter your room number" required>
+
+            <!-- Description -->
+            <label for="description">Complaint Description</label>
+            <textarea id="description" name="description" placeholder="Describe your problem in detail..." required></textarea>
+
+            <!-- Upload Photo -->
+            <label for="photo">Upload Image (optional)</label>
+            <input type="file" id="photo" name="photo" accept="image/*">
+
+            <!-- Submit -->
+            <button type="submit" class="btn">Submit Complaint</button>
+        </form>
+    </div>
+
+</body>
+</html>
