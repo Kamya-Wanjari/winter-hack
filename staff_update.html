@@ -76,39 +76,45 @@
     }
 
     function renderComplaints() {
-      const list = loadComplaints();
-      const container = document.getElementById('complaintList');
-      container.innerHTML = '';
+  const list = loadComplaints();
+  const container = document.getElementById('complaintList');
+  container.innerHTML = '';
 
-      if (list.length === 0) {
-        container.innerHTML = '<p>No complaints submitted yet.</p>';
-        return;
-      }
+  if (list.length === 0) {
+    container.innerHTML = '<p>No complaints submitted yet.</p>';
+    return;
+  }
 
-      list.forEach((c) => {
-        const div = document.createElement('div');
-        div.className = 'complaint-item';
+  list.forEach((c) => {
+    const div = document.createElement('div');
+    div.className = 'complaint-item';
 
-        div.innerHTML = `
-          <strong>${c.category}</strong> - ${c.hostel}, Room ${c.room}<br>
-          <small>${new Date(c.time).toLocaleString()}</small>
-          <p>${c.description}</p>
+    let photoSrc = c.photo || "";
 
-          <label>Update Status:</label>
-          <select onchange="updateStatus('${c.id}', this.value)">
-            <option value="pending" ${c.status === 'pending' ? 'selected' : ''}>Pending</option>
-            <option value="inprogress" ${c.status === 'inprogress' ? 'selected' : ''}>In-Progress</option>
-            <option value="resolved" ${c.status === 'resolved' ? 'selected' : ''}>Resolved</option>
-          </select>
+    div.innerHTML = `
+      <strong>${c.category}</strong> - ${c.hostel}, Room ${c.room}<br>
+      <small>${new Date(c.time).toLocaleString()}</small>
+      <p>${c.description}</p>
+      ${photoSrc ? `<img src="${photoSrc}" alt="Complaint photo" style="max-width:200px; margin-top:10px; border-radius:8px; border:1px solid #ccc;">` : ''}
 
-          <p style="margin-top:8px">Current Status: 
-            <span class="status ${c.status || 'pending'}">${(c.status || 'pending').toUpperCase()}</span>
-          </p>
-        `;
+      <label>Update Status:</label>
+      <select onchange="updateStatus('${c.id}', this.value)">
+        <option value="pending" ${c.status === 'pending' ? 'selected' : ''}>Pending</option>
+        <option value="inprogress" ${c.status === 'inprogress' ? 'selected' : ''}>In-Progress</option>
+        <option value="resolved" ${c.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+      </select>
 
-        container.appendChild(div);
-      });
-    }
+      <p style="margin-top:8px">Current Status: 
+        <span class="status ${c.status || 'pending'}">${(c.status || 'pending').toUpperCase()}</span>
+      </p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+
+    
 
     function updateStatus(id, newStatus) {
       const list = loadComplaints();

@@ -68,13 +68,14 @@
     }
 
     function toBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result); // base64 string
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-      });
-    }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result); // includes "data:image/png;base64,..."
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
 
     async function handleSubmit(e) {
       e.preventDefault();

@@ -1,151 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Staff - View Complaints</title>
-  <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard</title>
+
+    <style>
     body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      height: 100vh;
-      color: rgba(0, 0, 0, 0.998);
-      position: relative;
-      overflow: auto;
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        height: 100vh;
+        color: rgba(0, 0, 0, 0.998);
+        position: relative;
+        overflow: hidden;
     }
 
+    /* BLURRED BACKGROUND OF THE IMAGE */
     body::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url(admin_bg.jpeg) no-repeat center center/cover;
-      filter: blur(2px);
-      z-index: -1;
-      transform: scale(1.1);
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url(admin_bg.jpeg) no-repeat center center/cover;
+        filter: blur(2px);   /* adjust blur amount here */
+        z-index: -1;
+        transform: scale(1.1); /* avoids edges showing after blur */
     }
 
+    /* NAVBAR */
     .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.716);
-      padding: 15px 40px;
-      backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.716);
+        padding: 15px 40px;
+        backdrop-filter: blur(4px);
     }
 
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .logo img {
-      width: 45px;
+        width: 45px;
     }
 
     .nav-links a {
-      margin-left: 25px;
-      color: rgb(0, 0, 0);
-      text-decoration: none;
-      font-size: 1.1rem;
-      transition: 0.3s;
+        margin-left: 25px;
+        color: rgb(0, 0, 0);
+        text-decoration: none;
+        font-size: 1.1rem;
+        transition: 0.3s;
     }
 
     .nav-links a:hover {
-      color: #ffd369;
+        color: #ffd369;
     }
 
+    /* MAIN AREA */
     .main {
-      margin-top: 10vh;
-      text-align: center;
+        margin-top: 10vh;
+        text-align: center;
     }
 
     .main h1 {
-      font-size: 2.5rem;
-      text-shadow: 0 0 8px black;
+        font-size: 3rem;
+        text-shadow: 0 0 8px black;
     }
 
-    .complaint-list {
-      margin: 40px auto;
-      max-width: 800px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    .cards {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center;
+        gap: 40px;
     }
 
-    .complaint {
-      text-align: left;
-      margin-bottom: 25px;
-      padding: 15px;
-      border-left: 5px solid #ffd369;
-      background: #fff;
-      border-radius: 8px;
+    .card {
+        width: 270px;
+        padding: 25px;
+        background: rgba(255, 255, 255, 0.686);
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        transition: 0.3s;
     }
 
-    .complaint h3 {
-      margin: 0 0 5px;
+    .card:hover {
+        transform: scale(1.05);
+        background: rgb(255, 255, 255);
     }
 
-    .complaint small {
-      color: #555;
+    .btn {
+        display: inline-block;
+        margin-top: 15px;
+        background: #ffd369;
+        padding: 10px 20px;
+        color: black;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
     }
-  </style>
+</style>
+
 </head>
 <body>
 
-  <!-- NAVBAR -->
-  <div class="navbar">
-    <div class="logo">
-      <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png" />
-      <h2>Staff Panel</h2>
+    <!-- HEADER / NAVBAR -->
+    <div class="navbar">
+        <div class="logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
+            <h2>Staff Panel</h2>
+        </div>
+<div class="nav-links">
+            <a href="home_page.html">Logout</a>
+        </div>
     </div>
-    <div class="nav-links">
-      <a href="staff_dashboard.html">Dashboard</a>
-      <a href="home_page.html">Logout</a>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+        <h1>Welcome, Staff</h1>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Make Announcement</h3>
+                <p>Create and broadcast important messages to students.</p>
+                <button class="btn" id="announcementBtn">Create</button>
+            </div>
+
+            <div class="card">
+                <h3>Update Complaints</h3>
+                <p>View, track and update the status of student issues.</p>
+                <button class="btn" id="updateBtn">Update</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- MAIN CONTENT -->
-  <div class="main">
-    <h1>Student Complaints</h1>
-    <div class="complaint-list" id="complaintContainer">
-      <p>Loading complaints...</p>
-    </div>
-  </div>
-
-  <script>
-    async function loadComplaints() {
-      try {
-        const res = await fetch('/api/complaints');
-        const complaints = await res.json();
-        const container = document.getElementById('complaintContainer');
-        container.innerHTML = '';
-
-        if (complaints.length === 0) {
-          container.innerHTML = '<p>No complaints submitted yet.</p>';
-          return;
-        }
-
-        complaints.forEach(c => {
-          const div = document.createElement('div');
-          div.className = 'complaint';
-          div.innerHTML = `
-            <h3>${c.studentName}</h3>
-            <p>${c.complaintText}</p>
-            <small>Submitted on ${new Date(c.timestamp).toLocaleString()}</small>
-          `;
-          container.appendChild(div);
-        });
-      } catch (err) {
-        document.getElementById('complaintContainer').innerHTML = '<p>Error loading complaints.</p>';
-      }
-    }
-
-    loadComplaints();
-  </script>
 </body>
+<script>
+    document.getElementById("announcementBtn").addEventListener("click", function() {
+        window.location.href = "announcement.html";
+    });
+
+    document.getElementById("updateBtn").addEventListener("click", function() {
+        window.location.href = "staff_update.html";
+    });
+    document.getElementById("updateBtn").addEventListener("click", function() {
+        window.location.href = "staff_update.html";
+        }); 
+</script>
+
 </html>
