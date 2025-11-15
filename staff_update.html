@@ -3,127 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <title>Complaint Status Update - Staff</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: #f5f7fb;
-    }
-    .container {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 1.6rem;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.07);
-      margin-top: 20px;
-    }
-    select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #d9d9d9;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-    .complaint-item {
-      padding: 15px;
-      border: 1px solid #e6e6e6;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background: #fff;
-    }
-    .status {
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      color: white;
-    }
-    .pending { background: #ff922b; }
-    .inprogress { background: #0ca678; }
-    .resolved { background: #2f9e44; }
+    body { font-family:"Poppins",sans-serif; background:#f5f7fb; margin:0; }
+    .container { max-width:900px; margin:30px auto; padding:20px; }
+    .card { background:white; padding:20px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.07); }
+    .complaint-item { padding:15px; border:1px solid #e6e6e6; border-radius:8px; margin-bottom:10px; background:#fff; }
+    .btn-pass { background:#ff922b; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; float:right; margin-top:8px; }
+    .status { padding:5px 10px; border-radius:6px; font-size:0.8rem; color:white; }
+    .pending { background:#ff922b; } .inprogress { background:#0ca678; } .resolved { background:#2f9e44; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Staff - Update Complaint Status</h1>
-
     <div class="card">
-      <h2 style="font-size:1.2rem; margin-bottom:10px;">Complaints List</h2>
+      <h2>Complaints List</h2>
       <div id="complaintList"></div>
     </div>
   </div>
 
   <script>
-    // Use the same key as Student Portal
-    const STORAGE_KEY = 'student_complaints_v1';
+    const STUDENT_KEY = 'student_complaints_v1';
+    const WARDEN_KEY = 'warden_complaints_v1';
 
-    function loadComplaints() {
-      const data = localStorage.getItem(STORAGE_KEY);
+    function loadComplaints(key) {
+      const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : [];
     }
+    function saveComplaints(key, list) {
+      localStorage.setItem(key, JSON.stringify(list));
+    }
 
-    function saveComplaints(list) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    function passOn(id) {
+      let studentList = loadComplaints(STUDENT_KEY);
+      const complaint = studentList.find(c => c.id == id);
+      if (!complaint) return;
+
+      let wardenList = loadComplaints(WARDEN_KEY);
+      // push if not already there
+      if (!wardenList.find(c => c.id == id)) {
+        wardenList.push(complaint);
+        saveComplaints(WARDEN_KEY, wardenList);
+      }
+
+      complaint.submittedToWarden = true;
+      saveComplaints(STUDENT_KEY, studentList);
+      renderComplaints();
+    }
+
+    function updateStatus(id, newStatus) {
+      let list = loadComplaints(STUDENT_KEY);
+      const idx = list.findIndex(c => c.id == id);
+      if (idx !== -1) {
+        list[idx].status = newStatus;
+        saveComplaints(STUDENT_KEY, list);
+        renderComplaints();
+      }
     }
 
     function renderComplaints() {
-  const list = loadComplaints();
-  const container = document.getElementById('complaintList');
-  container.innerHTML = '';
+      const list = loadComplaints(STUDENT_KEY);
+      const container = document.getElementById('complaintList');
+      container.innerHTML = '';
 
-  if (list.length === 0) {
-    container.innerHTML = '<p>No complaints submitted yet.</p>';
-    return;
-  }
-
-  list.forEach((c) => {
-    const div = document.createElement('div');
-    div.className = 'complaint-item';
-
-    let photoSrc = c.photo || "";
-
-    div.innerHTML = `
-      <strong>${c.category}</strong> - ${c.hostel}, Room ${c.room}<br>
-      <small>${new Date(c.time).toLocaleString()}</small>
-      <p>${c.description}</p>
-      ${photoSrc ? `<img src="${photoSrc}" alt="Complaint photo" style="max-width:200px; margin-top:10px; border-radius:8px; border:1px solid #ccc;">` : ''}
-
-      <label>Update Status:</label>
-      <select onchange="updateStatus('${c.id}', this.value)">
-        <option value="pending" ${c.status === 'pending' ? 'selected' : ''}>Pending</option>
-        <option value="inprogress" ${c.status === 'inprogress' ? 'selected' : ''}>In-Progress</option>
-        <option value="resolved" ${c.status === 'resolved' ? 'selected' : ''}>Resolved</option>
-      </select>
-
-      <p style="margin-top:8px">Current Status: 
-        <span class="status ${c.status || 'pending'}">${(c.status || 'pending').toUpperCase()}</span>
-      </p>
-    `;
-
-    container.appendChild(div);
-  });
-}
-
-
-    
-
-    function updateStatus(id, newStatus) {
-      const list = loadComplaints();
-      const index = list.findIndex((c) => c.id == id);
-      if (index !== -1) {
-        list[index].status = newStatus;
-        saveComplaints(list);
-        renderComplaints();
+      if (list.length === 0) {
+        container.innerHTML = '<p>No complaints submitted yet.</p>';
+        return;
       }
+
+      list.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'complaint-item';
+        div.innerHTML = `
+          <strong>${c.category}</strong> - ${c.hostel}, Room ${c.room}<br>
+          <small>${new Date(c.time).toLocaleString()}</small>
+          <p>${c.description}</p>
+          ${c.photo ? `<img src="${c.photo}" alt="Complaint photo" style="max-width:200px;">` : ''}
+          <label>Update Status:</label>
+          <select onchange="updateStatus('${c.id}', this.value)">
+            <option value="pending" ${c.status==='pending'?'selected':''}>Pending</option>
+            <option value="inprogress" ${c.status==='inprogress'?'selected':''}>In-Progress</option>
+            <option value="resolved" ${c.status==='resolved'?'selected':''}>Resolved</option>
+          </select>
+          <p>Current Status: <span class="status ${c.status}">${c.status.toUpperCase()}</span></p>
+          <button class="btn-pass" onclick="passOn('${c.id}')" ${c.submittedToWarden?'disabled':''}>
+            ${c.submittedToWarden?'Submitted to Warden':'Pass On'}
+          </button>
+        `;
+        container.appendChild(div);
+      });
     }
 
     renderComplaints();

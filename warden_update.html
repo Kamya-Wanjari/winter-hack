@@ -2,132 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Complaint Status Update - Warden</title>
   <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: #f5f7fb;
-    }
-    .container {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 1.6rem;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.07);
-      margin-top: 20px;
-    }
-    select, input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #d9d9d9;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-    button {
-      background: #0b63ff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      margin-top: 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    .complaint-item {
-      padding: 15px;
-      border: 1px solid #e6e6e6;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background: #fff;
-    }
-    .status {
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      color: white;
-    }
-    .pending { background: #ff922b; }
-    .inprogress { background: #0ca678; }
-    .resolved { background: #2f9e44; }
+    body { font-family:"Poppins",sans-serif; background:#f5f7fb; margin:0; }
+    .container { max-width:900px; margin:30px auto; padding:20px; }
+    h1 { margin:0; font-size:1.6rem; }
+    .card { background:white; padding:20px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.07); margin-top:20px; }
+    .complaint-item { padding:15px; border:1px solid #e6e6e6; border-radius:8px; margin-bottom:10px; background:#fff; }
+    .complaint-item img { max-width:200px; margin-top:10px; border-radius:8px; border:1px solid #ccc; }
+    .status { padding:5px 10px; border-radius:6px; font-size:0.8rem; color:white; }
+    .pending { background:#ff922b; }
+    .inprogress { background:#0ca678; }
+    .resolved { background:#2f9e44; }
+    .btn-delete { background:#d9534f; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; float:right; margin-top:8px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Warden - Update Complaint Status</h1>
-
     <div class="card">
-      <h2 style="font-size:1.2rem; margin-bottom:10px;">Complaints List</h2>
+      <h2>Complaints List</h2>
       <div id="complaintList"></div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'hostel_complaints_v1';
+    const WARDEN_KEY = 'warden_complaints_v1';
+    const STUDENT_KEY = 'student_complaints_v1';
 
-    function loadComplaints() {
-      const data = localStorage.getItem(STORAGE_KEY);
+    function loadComplaints(key) {
+      const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : [];
     }
-
-    function saveComplaints(list) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    }
-
-    function renderComplaints() {
-      const list = loadComplaints();
-      const container = document.getElementById('complaintList');
-
-      container.innerHTML = '';
-
-      if (list.length === 0) {
-        container.innerHTML = '<p>No complaints submitted yet.</p>';
-        return;
-      }
-
-      list.forEach((c) => {
-        const div = document.createElement('div');
-        div.className = 'complaint-item';
-
-        div.innerHTML = `
-          <strong>${c.title}</strong><br>
-          <small>${c.studentName} • ${new Date(c.time).toLocaleString()}</small>
-          <p>${c.description}</p>
-
-          <label>Update Status:</label>
-          <select onchange="updateStatus('${c.id}', this.value)">
-            <option value="pending" ${c.status === 'pending' ? 'selected' : ''}>Pending</option>
-            <option value="inprogress" ${c.status === 'inprogress' ? 'selected' : ''}>In-Progress</option>
-            <option value="resolved" ${c.status === 'resolved' ? 'selected' : ''}>Resolved</option>
-          </select>
-
-          <p style="margin-top:8px">Current Status: 
-            <span class="status ${c.status}">${c.status.toUpperCase()}</span>
-          </p>
-        `;
-
-        container.appendChild(div);
-      });
+    function saveComplaints(key, list) {
+      localStorage.setItem(key, JSON.stringify(list));
     }
 
     function updateStatus(id, newStatus) {
-      const list = loadComplaints();
-      const index = list.findIndex((c) => c.id === id);
-      if (index !== -1) {
-        list[index].status = newStatus;
-        saveComplaints(list);
+      let wardenList = loadComplaints(WARDEN_KEY);
+      const idx = wardenList.findIndex(c => c.id == id);
+      if (idx !== -1) {
+        wardenList[idx].status = newStatus;
+        saveComplaints(WARDEN_KEY, wardenList);
+
+        // sync back to student list
+        let studentList = loadComplaints(STUDENT_KEY);
+        const sIdx = studentList.findIndex(c => c.id == id);
+        if (sIdx !== -1) {
+          studentList[sIdx].status = newStatus;
+          saveComplaints(STUDENT_KEY, studentList);
+        }
         renderComplaints();
       }
+    }
+
+    function deleteComplaint(id) {
+      // remove from warden list
+      let wardenList = loadComplaints(WARDEN_KEY);
+      wardenList = wardenList.filter(c => c.id != id);
+      saveComplaints(WARDEN_KEY, wardenList);
+
+      // also remove from student list
+      let studentList = loadComplaints(STUDENT_KEY);
+      studentList = studentList.filter(c => c.id != id);
+      saveComplaints(STUDENT_KEY, studentList);
+
+      renderComplaints();
+    }
+
+    function renderComplaints() {
+      const list = loadComplaints(WARDEN_KEY);
+      const container = document.getElementById('complaintList');
+      container.innerHTML = '';
+
+      if (list.length === 0) {
+        container.innerHTML = '<p>No complaints received yet.</p>';
+        return;
+      }
+
+      list.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'complaint-item';
+        div.innerHTML = `
+          <strong>${c.category}</strong> - ${c.hostel}, Room ${c.room}<br>
+          <small>${new Date(c.time).toLocaleString()}</small>
+          <p>${c.description}</p>
+          ${c.photo ? `<img src="${c.photo}" alt="Complaint photo">` : ''}
+          <label>Update Status:</label>
+          <select onchange="updateStatus('${c.id}', this.value)">
+            <option value="pending" ${c.status==='pending'?'selected':''}>Pending</option>
+            <option value="inprogress" ${c.status==='inprogress'?'selected':''}>In-Progress</option>
+            <option value="resolved" ${c.status==='resolved'?'selected':''}>Resolved</option>
+          </select>
+          <p>Current Status: <span class="status ${c.status}">${c.status.toUpperCase()}</span></p>
+          <button class="btn-delete" onclick="deleteComplaint('${c.id}')">Delete</button>
+        `;
+        container.appendChild(div);
+      });
     }
 
     renderComplaints();
