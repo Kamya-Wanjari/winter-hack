@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Warden Announcements</title>
+  <style>
+    :root{--bg:#f5f7fb;--card:#ffffff;--accent:#0b63ff}
+    body{margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:#0b1220}
+    .container{max-width:900px;margin:28px auto;padding:18px}
+    header{display:flex;align-items:center;gap:12px}
+    h1{margin:0;font-size:1.4rem}
+    .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(12,18,30,0.06);margin-top:14px}
+    form .row{display:flex;gap:10px;margin-bottom:10px}
+    input[type=text],textarea,select{flex:1;padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:0.95rem}
+    textarea{min-height:100px;resize:vertical}
+    .controls{display:flex;gap:10px;align-items:center}
+    button{background:var(--accent);color:white;border:none;padding:10px 12px;border-radius:8px;cursor:pointer}
+    button.secondary{background:#f1f3f6;color:#0b1220}
+    .list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+    .announce{padding:12px;border-radius:10px;border:1px solid #eef2ff;background:linear-gradient(180deg,#fff,#fbfdff)}
+    .meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .small{font-size:0.85rem;color:#465266}
+    .actions{display:flex;gap:6px}
+    .pill{background:#eaf1ff;color:#063a9b;padding:6px 8px;border-radius:999px;font-size:0.8rem}
+    @media (max-width:520px){.row{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Staff Announcement Portal</h1>
+    </header>
+
+    <div class="card" id="announceCard">
+      <form id="announceForm">
+        <div class="row">
+          <input id="title" type="text" placeholder="Announcement title (e.g. Mess timing change)" required />
+          <select id="audience">
+            <option value="all">All Students</option>
+            <option value="Terekhol Hostel">Terekhol Hostel</option>
+            <option value="Talpona Hostel">Talpona Hostel</option>
+            
+          </select>
+        </div>
+        <div>
+          <textarea id="message" placeholder="Type the announcement here..." required></textarea>
+        </div>
+        <div class="controls" style="margin-top:10px">
+          <button type="submit">Publish Announcement</button>
+          <button type="button" id="clearBtn" class="secondary">Clear Form</button>
+          <button type="button" id="downloadBtn" class="secondary">Download Announcements</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="margin:0;font-size:1rem">Announcements</h2>
+        <div class="small">Saved locally in this browser</div>
+      </div>
+
+      <div class="list" id="annList">
+        <!-- announcements injected here -->
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button id="removeAll" class="secondary">Remove All</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple single-file announcements app using localStorage.
+    const STORAGE_KEY = 'warden_announcements_v1'
+    const form = document.getElementById('announceForm')
+    const titleEl = document.getElementById('title')
+    const messageEl = document.getElementById('message')
+    const audienceEl = document.getElementById('audience')
+    const annList = document.getElementById('annList')
+    const clearBtn = document.getElementById('clearBtn')
+    const removeAll = document.getElementById('removeAll')
+    const downloadBtn = document.getElementById('downloadBtn')
+
+    function load() {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      try{
+        return raw ? JSON.parse(raw) : []
+      }catch(e){
+        console.error('Corrupt storage, resetting', e)
+        localStorage.removeItem(STORAGE_KEY)
+        return []
+      }
+    }
+
+    function save(list){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
+    }
+
+    function render(){
+      const list = load()
+      annList.innerHTML = ''
+      if(list.length === 0){
+        annList.innerHTML = '<div class="small">No announcements yet.</div>'
+        return
+      }
+      list.slice().reverse().forEach(item => {
+        const el = document.createElement('div')
+        el.className = 'announce'
+        el.innerHTML = `
+          <div class="meta">
+            <div>
+              <strong>${escapeHtml(item.title)}</strong>
+              <div class="small">${escapeHtml(item.audience)} • ${new Date(item.time).toLocaleString()}</div>
+            </div>
+            <div class="actions">
+              <span class="pill">${item.important ? 'Important' : 'Notice'}</span>
+              <button data-id="${item.id}" class="secondary" onclick="editAnnouncement('${item.id}')">Edit</button>
+              <button data-id="${item.id}" onclick="deleteAnnouncement('${item.id}')">Delete</button>
+            </div>
+          </div>
+          <div style="margin-top:8px">${escapeHtml(item.message).replace(/\n/g,'<br/>')}</div>
+        `
+        annList.appendChild(el)
+      })
+    }
+
+    function escapeHtml(str){
+      if(!str) return ''
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#39;')
+    }
+
+    function genId(){
+      return 'a_'+Date.now()+'_'+Math.floor(Math.random()*9000+1000)
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault()
+      const title = titleEl.value.trim()
+      const message = messageEl.value.trim()
+      const audience = audienceEl.value
+      if(!title || !message) return alert('Please enter both title and message.')
+      const list = load()
+      const item = { id: genId(), title, message, audience, time: Date.now(), important: false }
+      list.push(item)
+      save(list)
+      form.reset()
+      render()
+    })
+
+    clearBtn.addEventListener('click', ()=> form.reset())
+
+    removeAll.addEventListener('click', ()=>{
+      if(!confirm('Remove all announcements?')) return
+      localStorage.removeItem(STORAGE_KEY)
+      render()
+    })
+
+    window.deleteAnnouncement = function(id){
+      const list = load().filter(i=>i.id!==id)
+      save(list)
+      render()
+    }
+
+    window.editAnnouncement = function(id){
+      const list = load()
+      const item = list.find(i=>i.id===id)
+      if(!item) return alert('Announcement not found')
+      // populate form for quick edit: on save, replace the existing item
+      titleEl.value = item.title
+      messageEl.value = item.message
+      audienceEl.value = item.audience
+
+      // remove the old item and save: user can press publish to re-create
+      const remaining = list.filter(i=>i.id!==id)
+      save(remaining)
+      render()
+      window.scrollTo({top:0,behavior:'smooth'})
+    }
+
+    downloadBtn.addEventListener('click', ()=>{
+      const list = load()
+      const data = JSON.stringify(list, null, 2)
+      const blob = new Blob([data], {type:'application/json'})
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'announcements.json'
+      a.click()
+      URL.revokeObjectURL(url)
+    })
+
+    // initial render
+    render()
+  </script>
+</body>
+</html>

@@ -1,118 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Complaint</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fff8e1; /* soft background */
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            width: 40%;
-            margin: 40px auto;
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-            background-color: #ffd369;
-            padding: 12px;
-            border-radius: 8px;
-        }
-
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-            color: #444;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-
-        textarea {
-            height: 120px;
-            resize: none;
-        }
-
-        .btn {
-            margin-top: 20px;
-            width: 100%;
-            padding: 12px;
-            background-color: #ffd369;
-            color: #333;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #e6c15a;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Submit Complaint with Image</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#fff8e1; margin:0; padding:0; }
+    .container { width:50%; margin:40px auto; background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+    h2 { text-align:center; background:#ffd369; padding:12px; border-radius:8px; }
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input, select, textarea { width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid #ccc; }
+    textarea { height:120px; resize:none; }
+    .btn { margin-top:20px; width:100%; padding:12px; background:#ffd369; border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+    .issue { background:#fafafa; border:1px solid #ddd; border-radius:8px; padding:12px; margin-top:10px; }
+    .issue img { max-width:200px; margin-top:10px; border-radius:8px; border:1px solid #ccc; }
+  </style>
 </head>
-
 <body>
+  <div class="container">
+    <h2>Submit a Complaint</h2>
+    <form id="complaintForm">
+      <label for="hostel">Select Your Hostel</label>
+      <select id="hostel" required>
+        <option value="">Choose your hostel</option>
+        <option value="terekhol-girls">Terekhol (Girls Hostel)</option>
+        <option value="talpona-boys">Talpona (Boys Hostel)</option>
+      </select>
 
-    <div class="container">
-        <h2>Submit a Complaint</h2>
+      <label for="category">Issue Category</label>
+      <select id="category" required>
+        <option value="">Select an issue</option>
+        <option value="water">Water Leakage</option>
+        <option value="electricity">Power Cut</option>
+        <option value="cleanliness">Cleanliness</option>
+        <option value="wifi">WiFi Issue</option>
+        <option value="other">Other</option>
+      </select>
 
-        <form action="/submit_complaint" method="POST" enctype="multipart/form-data">
+      <label for="room">Room Number</label>
+      <input type="text" id="room" placeholder="Enter your room number" required>
 
-            <!-- Hostel Selection -->
-            <label for="hostel">Select Your Hostel</label>
-            <select id="hostel" name="hostel" required>
-                <option value="">Choose your hostel</option>
-                <option value="terekhol-girls">Terekhol (Girls Hostel)</option>
-                <option value="talpona-boys">Talpona (Boys Hostel)</option>
-            </select>
+      <label for="description">Complaint Description</label>
+      <textarea id="description" placeholder="Describe your problem..." required></textarea>
 
-            <!-- Category -->
-            <label for="category">Issue Category</label>
-            <select id="category" name="category" required>
-                <option value="">Select an issue</option>
-                <option value="water">Water Leakage</option>
-                <option value="electricity">Power Cut / Electricity</option>
-                <option value="cleanliness">Cleanliness Issue</option>
-                <option value="wifi">WiFi / Internet Issue</option>
-                <option value="other">Other</option>
-            </select>
+      <label for="photo">Upload Image (optional)</label>
+      <input type="file" id="photo" accept="image/*">
 
-            <!-- Room -->
-            <label for="room">Room Number</label>
-            <input type="text" id="room" name="room" placeholder="Enter your room number" required>
+      <button type="submit" class="btn">Submit Complaint</button>
+    </form>
 
-            <!-- Description -->
-            <label for="description">Complaint Description</label>
-            <textarea id="description" name="description" placeholder="Describe your problem in detail..." required></textarea>
+    <h2 style="margin-top:30px;">My Complaints</h2>
+    <div id="issueList"></div>
+  </div>
 
-            <!-- Upload Photo -->
-            <label for="photo">Upload Image (optional)</label>
-            <input type="file" id="photo" name="photo" accept="image/*">
+  <script>
+    const STORAGE_KEY = 'student_complaints_v1';
+    const form = document.getElementById('complaintForm');
+    const issueList = document.getElementById('issueList');
 
-            <!-- Submit -->
-            <button type="submit" class="btn">Submit Complaint</button>
-        </form>
-    </div>
+    function loadComplaints() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      try { return raw ? JSON.parse(raw) : []; }
+      catch(e){ localStorage.removeItem(STORAGE_KEY); return []; }
+    }
 
+    function saveComplaints(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    }
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result); // base64 string
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const hostel = document.getElementById('hostel').value;
+      const category = document.getElementById('category').value;
+      const room = document.getElementById('room').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const photoInput = document.getElementById('photo');
+
+      if (!hostel || !category || !room || !description) {
+        alert("Please fill all required fields.");
+        return;
+      }
+
+      let photoData = "";
+      if (photoInput.files.length > 0) {
+        const file = photoInput.files[0];
+        photoData = await toBase64(file); // convert to base64
+      }
+
+      const list = loadComplaints();
+      const item = {
+        id: Date.now(),
+        hostel,
+        category,
+        room,
+        description,
+        time: Date.now(),
+        status: "pending",
+        photo: photoData
+      };
+      list.push(item);
+      saveComplaints(list);
+      form.reset();
+      renderComplaints();
+    }
+
+    function renderComplaints() {
+      const list = loadComplaints();
+      issueList.innerHTML = '';
+      if (list.length === 0) {
+        issueList.innerHTML = '<div class="small">No complaints submitted yet.</div>';
+        return;
+      }
+
+      list.slice().reverse().forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'issue';
+        el.innerHTML = `
+          <strong>${item.category}</strong> - ${item.hostel}, Room ${item.room}
+          <div class="small">${new Date(item.time).toLocaleString()}</div>
+          <p>${item.description}</p>
+          ${item.photo ? `<img src="${item.photo}" alt="Attached photo">` : ''}
+        `;
+        issueList.appendChild(el);
+      });
+    }
+
+    form.addEventListener('submit', handleSubmit);
+    renderComplaints();
+  </script>
 </body>
 </html>
