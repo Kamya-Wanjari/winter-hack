@@ -14,7 +14,24 @@
     .pending { background:#ff922b; }
     .inprogress { background:#0ca678; }
     .resolved { background:#2f9e44; }
-    .btn-delete { background:#d9534f; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold; float:right; margin-top:8px; }
+
+    /* New flex container for status + delete button */
+    .complaint-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .btn-delete {
+      background:#d9534f;
+      color:#fff;
+      border:none;
+      padding:6px 12px;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:bold;
+    }
   </style>
 </head>
 <body>
@@ -94,8 +111,10 @@
             <option value="inprogress" ${c.status==='inprogress'?'selected':''}>In-Progress</option>
             <option value="resolved" ${c.status==='resolved'?'selected':''}>Resolved</option>
           </select>
-          <p>Current Status: <span class="status ${c.status}">${c.status.toUpperCase()}</span></p>
-          <button class="btn-delete" onclick="deleteComplaint('${c.id}')">Delete</button>
+          <div class="complaint-actions">
+            <p>Current Status: <span class="status ${c.status}">${c.status.toUpperCase()}</span></p>
+            <button class="btn-delete" onclick="deleteComplaint('${c.id}')">Delete</button>
+          </div>
         `;
         container.appendChild(div);
       });
