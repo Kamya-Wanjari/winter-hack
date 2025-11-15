@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Feedback</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: whitesmoke;
+    }
+
+    header {
+      background: #ffd369;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #ffd369;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #fac039;
+    }
+
+    .success {
+      margin-top: 15px;
+      color: green;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Hostel Issue Portal</h1>
+    <p>Student Feedback</p>
+  </header>
+
+  <div class="container">
+    <h2>We value your feedback</h2>
+    <form id="feedbackForm">
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Your name" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Your @nitgoa.ac.in email" required>
+
+      <label for="rating">Rating</label>
+      <select id="rating" required>
+        <option value="">Select rating</option>
+        <option value="5">Excellent</option>
+        <option value="4">Good</option>
+        <option value="3">Average</option>
+        <option value="2">Poor</option>
+        <option value="1">Very Poor</option>
+      </select>
+
+      <label for="message">Feedback</label>
+      <textarea id="message" rows="5" placeholder="Write your feedback here..." required></textarea>
+
+      <button type="submit">Submit Feedback</button>
+    </form>
+    <div class="success" id="successMsg"></div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'student_feedback_v1';
+
+    document.getElementById("feedbackForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const rating = document.getElementById("rating").value;
+      const message = document.getElementById("message").value.trim();
+
+      // Validate email domain
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@nitgoa\.ac\.in$/;
+      if (!emailPattern.test(email)) {
+        alert("Email must be a valid @nitgoa.ac.in address.");
+        return;
+      }
+
+      // Build feedback object
+      const feedback = {
+        name,
+        email,
+        rating,
+        message,
+        time: new Date().toISOString()
+      };
+
+      // Save to localStorage
+      const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      existing.push(feedback);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+
+      // Show success message
+      document.getElementById("successMsg").textContent = "Thank you! Your feedback has been submitted.";
+      document.getElementById("feedbackForm").reset();
+    });
+  </script>
+</body>
+</html>

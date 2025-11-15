@@ -12,7 +12,7 @@
         height: 100vh;
         color: rgba(0, 0, 0, 0.998);
         position: relative;
-        overflow: hidden;
+        overflow: auto; /* allow scrolling if feedback list grows */
     }
 
     /* BLURRED BACKGROUND OF THE IMAGE */
@@ -23,10 +23,10 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: url(home_page1.jpg) no-repeat center center/cover;
-        filter: blur(2px);   /* adjust blur amount here */
+        background: url(warden_homepage.jpg) no-repeat center center/cover;
+        filter: blur(2px);
         z-index: -1;
-        transform: scale(1.1); /* avoids edges showing after blur */
+        transform: scale(1.1);
     }
 
     /* NAVBAR */
@@ -103,8 +103,46 @@
         text-decoration: none;
         font-weight: bold;
     }
-</style>
 
+    /* FEEDBACK SECTION */
+    .feedback-section {
+        max-width: 900px;
+        margin: 50px auto;
+        background: rgba(255, 255, 255, 0.85);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    .feedback-section h2 {
+        margin-top: 0;
+        color: #333;
+        text-align: center;
+    }
+
+    .feedback-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .feedback-item {
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background: #fafafa;
+    }
+
+    .feedback-item strong {
+        color: #ffd369;
+    }
+
+    .small {
+        font-size: 0.85rem;
+        color: #555;
+    }
+    </style>
 </head>
 <body>
 
@@ -139,7 +177,14 @@
         </div>
     </div>
 
-</body>
+    <!-- FEEDBACK SECTION -->
+    <div class="feedback-section">
+        <h2>Student Feedback</h2>
+        <div class="feedback-list" id="feedbackList">
+            <!-- Feedback entries injected here -->
+        </div>
+    </div>
+
 <script>
     document.getElementById("announcementBtn").addEventListener("click", function() {
         window.location.href = "announcement.html";
@@ -148,6 +193,43 @@
     document.getElementById("updateBtn").addEventListener("click", function() {
         window.location.href = "warden_update.html";
     });
+
+    // Load feedback from localStorage
+    const STORAGE_KEY = 'student_feedback_v1';
+    const feedbackList = document.getElementById('feedbackList');
+
+    function loadFeedback() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        try {
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            console.error('Error loading feedback', e);
+            return [];
+        }
+    }
+
+    function renderFeedback() {
+        const list = loadFeedback();
+        feedbackList.innerHTML = '';
+        if (list.length === 0) {
+            feedbackList.innerHTML = '<div class="small">No feedback submitted yet.</div>';
+            return;
+        }
+        list.slice().reverse().forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'feedback-item';
+            el.innerHTML = `
+                <strong>${item.name}</strong> (${item.email})<br>
+                <div class="small">Rating: ${item.rating} ★ • ${new Date(item.time).toLocaleString()}</div>
+                <p>${item.message}</p>
+            `;
+            feedbackList.appendChild(el);
+        });
+    }
+
+    // Initial render
+    renderFeedback();
 </script>
 
+</body>
 </html>
