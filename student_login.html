@@ -88,7 +88,8 @@
   <div class="login-box">
     <h2>Student Login</h2>
     <form id="loginForm">
-      <input type="text" id="studentId" placeholder="Student ID" required>
+      <!-- Changed Student ID to Email ID -->
+      <input type="email" id="emailId" placeholder="Email ID (must end with @nitgoa.ac.in)" required>
       <input type="password" id="password" placeholder="Password" required>
       <button type="submit">Login</button>
     </form>
@@ -102,19 +103,25 @@
     document.getElementById("loginForm").addEventListener("submit", function(event) {
       event.preventDefault(); // prevent default form submission
 
-      const studentId = document.getElementById("studentId").value.trim();
+      const emailId = document.getElementById("emailId").value.trim();
       const password = document.getElementById("password").value.trim();
 
       // Simple validation
-      if (studentId === "" || password === "") {
+      if (emailId === "" || password === "") {
         alert("Please fill in all fields.");
         return;
       }
 
+      // Check if email ends with @nitgoa.ac.in
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@nitgoa\.ac\.in$/;
+      if (!emailPattern.test(emailId)) {
+        alert("Email must be a valid @nitgoa.ac.in address.");
+        return;
+      }
+
       // Dummy check (replace with real authentication later)
-      else 
       alert("Login successful!");
-        window.location.href = "student_homepage.html";
+      window.location.href = "student_homepage.html";
     });
   </script>
 </body>
